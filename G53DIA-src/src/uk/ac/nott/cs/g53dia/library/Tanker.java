@@ -10,7 +10,7 @@ package uk.ac.nott.cs.g53dia.library;
  * Copyright (c) 2003 Stuart Reeves
  * Copyright (c) 2003-2005 Neil Madden (nem@cs.nott.ac.uk).
  * Copyright (c) 2011 Julian Zappala (jxz@cs.nott.ac.uk).
- * 
+ *
  * See the file "license.terms" for information on usage and redistribution
  * of this file, and for a DISCLAIMER OF ALL WARRANTIES.
  */
@@ -21,23 +21,23 @@ public abstract class Tanker {
      * The initial level of fuel in the tanker
      */
     int fuelLevel = MAX_FUEL;
-    
+
     /**
      * The initial level of waste in the tanker
      */
     int wasteLevel = 0;
-  
+
      /**
-     * The total amount of waste disposed of 
+     * The total amount of waste disposed of
      */
      int wasteDisposed = 0;
-    
+
     /**
      * The maximum amount of fuel a Tanker can have.
      * Note: this is assumed to be an even number.
      */
     public final static int MAX_FUEL = 100;
-    
+
     /**
      * The maximum amount of waste a Tanker can have.
      */
@@ -73,7 +73,7 @@ public abstract class Tanker {
     public Point getPosition() {
         return (Point)position.clone();
     }
-        
+
     /**
      * Get the cell currently occupied by the Tanker.
      * @param view the cells the Tanker can currently see
@@ -105,15 +105,15 @@ public abstract class Tanker {
 
     /**
      * The amount of waste the the tanker is currently carrying.
-     * 
+     *
      */
     public int getWasteLevel() {
     	return wasteLevel;
     }
-  
+
     /**
      * The amount of additional waste the tanker can carry.
-     * 
+     *
      */
     public int getWasteCapacity() {
     	return MAX_WASTE - wasteLevel;
@@ -127,5 +127,5 @@ public abstract class Tanker {
     public int getScore() {
     	 return wasteDisposed;
      }
-     
+
 }
