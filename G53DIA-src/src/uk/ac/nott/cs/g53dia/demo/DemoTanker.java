@@ -24,6 +24,7 @@ public class DemoTanker extends Tanker {
     private ArrayList<int[]> seenWells = new ArrayList<int[]>();
     private ArrayList<int[]> seenStations = new ArrayList<int[]>();
     private ArrayList<int[]> seenTasks = new ArrayList<int[]>();
+    private ArrayList<int[]> seenFuelpumps = new ArrayList<int[]>();
 
     private int tankPosX = 0;
     private int tankPosY = 0;
@@ -35,6 +36,8 @@ public class DemoTanker extends Tanker {
         initialWlakingAroundPoints.add(new int[]{-25,-25});
         initialWlakingAroundPoints.add(new int[]{-25,25});
         initialWlakingAroundPoints.add(new int[]{0,0});
+
+        seenFuelpumps.add(new int[]{0,0});
     }
 
     /*
@@ -43,6 +46,7 @@ public class DemoTanker extends Tanker {
      */
     public Action senseAndAct(Cell[][] view, long timestep) {
         initialSeenThings(view);
+        // System.out.println("("+seenStations.size()+","+seenWells.size()+","+seenTasks.size()+seenFuelpumps.size()+")");
 
         if(isInitialWlakingAround){
             return initialWalkingAround(view, timestep);
@@ -58,11 +62,11 @@ public class DemoTanker extends Tanker {
 			}
         } else {
             // otherwise, move randomly
-            // int a = (int)(Math.random() * 8);
-            System.out.println(tankPosX);
-            System.out.println(tankPosY);
-            tankMovement(4);
-            return new MoveAction(4);
+            int a = (int)(Math.random() * 8);
+            // System.out.println(tankPosX);
+            // System.out.println(tankPosY);
+            // tankMovement(4);
+            return new MoveAction(a);
         }
     }
 
@@ -93,7 +97,9 @@ public class DemoTanker extends Tanker {
     					seenWells.add(focusedPos);
                         // System.out.println("(" + i + "," + j+")"   +   "(" + tankPosX + "," + tankPosY+")"   +   "(" + focusedPos[0] + "," + focusedPos[1]+")");
                         // System.out.println("-------"+tankPosX+'.'+tankPosY+"||||"+b+"/"+c);
-    				} else {
+    				} else if (view[i][j] instanceof FuelPump && isInList(seenFuelpumps, focusedPos) == -1) {
+                        seenFuelpumps.add(focusedPos);
+                    } else {
     					continue;
     				}
                 }
@@ -216,4 +222,16 @@ public class DemoTanker extends Tanker {
         tankMovement(directionToGo);
         return new MoveAction(directionToGo);
     }
+
+    // private Action loadWaste(){
+    //
+    // }
+    //
+    // private Action refuel(){
+    //
+    // }
+    //
+    // private Action disposeWaste(){
+    //
+    // }
 }
