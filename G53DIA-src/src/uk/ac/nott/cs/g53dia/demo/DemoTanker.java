@@ -219,17 +219,75 @@ public class DemoTanker extends Tanker {
                 break;
         }
 
+        int fuelLeft = getFuelLevel() - Math.max(Math.abs(horiChange), Math.abs(vertChange));
+		int distanceToFuel = Math.max(Math.abs(pos[0]), Math.abs(pos[1]));
+		if (fuelLeft < distanceToFuel){
+			return getFuel(view);
+		}
+		else{
+			return moveInDirection(movementIndex);
+		}
+
         tankMovement(directionToGo);
         return new MoveAction(directionToGo);
     }
 
-    // private Action loadWaste(){
-    //
-    // }
-    //
+    private int getClosestIndexBetween(ArrayList<int[]> indicesList, int[] point){
+        int furthestGoableDistance = 100;
+        int closestIndex;
+        for(int i = 0;i < indicesList.size();i++){
+            int[] positionGoable = indicesList.get[i];
+            int distanceBetween = Math.max(Math.abs(positionGoable[0] - point[0]),Math.abs(positionGoable[1] - point[1]));
+            if(distanceBetween < furthestGoableDistance){
+                furthestGoableDistance = distanceBetween;
+                closestIndex = i;
+            }
+        }
+        return closestIndex;
+    }
+
+    private Action workingProcedure(Cell[][] view){
+        // Find nearest task going from current tank position
+        int[] taskToGo = seenTasks.get[getClosestIndex(seenTasks, new int[]{tankPosX, tankPosY})];
+        // int taskToGoX = taskToGo[0];
+        // int taskToGoY = taskToGo[1];
+        // int taskAmount = taskToGo[2];
+
+        // Find nearest task going from current tank position
+        int[] nearestFuelpumpGoingFromTask = seenFuelpumps.get[getClosestIndex(seenFuelpumps, taskToGo)];
+
+        int distanceBetweenTankAndTask = Math.max(Math.abs(taskToGo[0] - tankPosX),Math.abs(taskToGo[1] - tankPosY));
+        int distanceBetweenTaskAndFuelPump = Math.max(Math.abs(taskToGo[0] - nearestFuelpumpGoingFromTask[0]),Math.abs(taskToGo[1] - nearestFuelpumpGoingFromTask[1]));
+
+        if(getFuelLevel() )
+    }
+
+    private Action loadWaste(){
+        int[] positionToGo = seenTasks.get[getClosestIndex(seenTasks)];
+        int positionToGoX = positionToGo[0];
+        int positionToGoY = positionToGo[1];
+        int wasteAmount = positionToGo[2];
+
+        if(getCurrentCell(view) instanceof )
+    }
+
+//////////////////////////////////////////////
+    private Action getFuel(Cell[][] view){
+        if (getCurrentCell(view) instanceof FuelPump){
+            //should never change the x and y values - included for peace of mind.
+			tankerXPos = 0;
+			tankerYPos = 0;
+			return new RefuelAction();
+        }
+        else {
+            return moveToPos(view, fuelStationPos);
+        }
+    }
+
     // private Action refuel(){
     //
     // }
+    //
     //
     // private Action disposeWaste(){
     //
