@@ -1,5 +1,6 @@
 package uk.ac.nott.cs.g53dia.demo;
 import uk.ac.nott.cs.g53dia.library.*;
+import java.util.*;
 
 /**
  * An example of how to simulate execution of a tanker agent in the sample (task) environment.
@@ -29,11 +30,11 @@ public class DemoSimulator {
 	/**
 	 * Number of timesteps to execute
 	 */
-	private static int DURATION = 1000;
+	private static int DURATION = 10000;
 
 	public static void main(String[] args) {
         // Create an environment
-        Environment env = new Environment(Tanker.MAX_FUEL/2);
+        Environment env = new Environment(Tanker.MAX_FUEL/2, new Random(1));
         // Create our tanker
         Tanker t = new DemoTanker();
         // Create a GUI window to show our tanker

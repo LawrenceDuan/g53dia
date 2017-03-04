@@ -22,8 +22,6 @@ public class LoadWasteAction implements Action {
 
     public void execute(Environment env, Tanker tank) throws ActionFailedException {
 
-        System.out.print(tank.getPosition());
-        System.out.print(task.getStationPosition());
      	if (!(tank.getPosition().equals(task.getStationPosition()))) {
     		throw new ActionFailedException("LoadWaste: Not at Station");
     	}

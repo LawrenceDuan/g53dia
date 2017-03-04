@@ -60,7 +60,7 @@ public class DemoTanker extends Tanker {
         if(isInitialWlakingAround){
             return initialWalkingAround(view, timestep);
         }else{
-            System.out.print("1/");
+            System.out.print("--------"+timestep+"---------");
             return workingProcedure(view, timestep);
         }
     	// If fuel tank is low and not at the fuel pump then move towards the fuel pump
@@ -150,7 +150,7 @@ public class DemoTanker extends Tanker {
             int[] taskToGo = seenTasks.get(taskChosenIndex);
             int taskToGoX = taskToGo[0];
             int taskToGoY = taskToGo[1];
-            System.out.println("("+taskToGoX+","+taskToGoY+")");
+            System.out.print("TaskToGo:"+"("+taskToGoX+","+taskToGoY+")$"+"CurrentPosition:"+"("+tankPosX+","+tankPosY+")$");
             // int taskAmount = taskToGo[2];
 
             // Find nearest fuelPump going from taskToGo
@@ -181,13 +181,17 @@ public class DemoTanker extends Tanker {
 
 
                 // tank -> task -> fuelpump
-                if(fuelleftAfterTask >= distanceBetweenTaskAndFuelPump){
-                    System.out.println("("+fuelleftAfterTask+","+distanceBetweenTaskAndFuelPump+")");
+                if(fuelleftAfterTask > distanceBetweenTaskAndFuelPump){
+                    // System.out.print("("+fuelleftAfterTask+","+distanceBetweenTaskAndFuelPump+")");
                     if(getCurrentCell(view) instanceof Station){
                         if(lastStationX == tankPosX && lastStationY == tankPosY){
+                            System.out.println("22/");
+                            return moveTowardsPointsAction(view, taskToGo);
+                        } else if (tankPosX != taskToGo[0] || tankPosY != taskToGo[1]) {
+                            System.out.println("23/");
                             return moveTowardsPointsAction(view, taskToGo);
                         } else {
-                            System.out.print("2/");
+                            System.out.println("2/");
                             lastStationX = taskToGo[0];
                             lastStationY = taskToGo[1];
                             Station currentCellStation = (Station) getCurrentCell(view);
@@ -196,32 +200,35 @@ public class DemoTanker extends Tanker {
             				return new LoadWasteAction(currentTask);
                         }
                     } else {
-                        System.out.print("3/");
+                        System.out.println("3/");
                         return moveTowardsPointsAction(view, taskToGo);
                     }
                 }
                 // tank -> fuelpump
                 else {
-                    System.out.print("4/");
+                    System.out.println("4/");
                     if(getCurrentCell(view) instanceof FuelPump){
         				return new RefuelAction();
-        			} else {
+        			} else if(getFuelLevel() == 100) {
+                        System.out.println("20/");
+                        return walkingAround(view, timestep);
+                    } else {
         				return moveTowardsPointsAction(view, nearestFuelpumpGoingFromCurrent);
         			}
                 }
             }
             // tankCapacity() == taskAmount
             else if(getWasteCapacity() == taskToGo[2]) {
-                System.out.print("5/");
+                System.out.println("5/");
                 int distanceBetweenTaskAndWell = Math.max(Math.abs(taskToGo[0] - nearestWellGoingFromTask[0]),Math.abs(taskToGo[1] - nearestWellGoingFromTask[1]));
                 int distanceBetweenWellAndFuelPump = Math.max(Math.abs(nearestFuelpumpGoingFromWell[0] - nearestWellGoingFromTask[0]),Math.abs(nearestFuelpumpGoingFromWell[1] - nearestWellGoingFromTask[1]));
                 int fuelAfterTaskWell = getFuelLevel() - distanceBetweenTankAndTask - distanceBetweenTaskAndWell;
 
                 // tank -> task -> well -> fuelpump
-                if(fuelAfterTaskWell >= distanceBetweenWellAndFuelPump){
+                if(fuelAfterTaskWell > distanceBetweenWellAndFuelPump){
                     if(isToTask){
                         if(getCurrentCell(view) instanceof Station){
-                            System.out.print("6/");
+                            System.out.println("6/");
                             Station currentCellStation = (Station) getCurrentCell(view);
                             Task currentTask = currentCellStation.getTask();
                             seenTasks.remove(taskChosenIndex);
@@ -230,39 +237,39 @@ public class DemoTanker extends Tanker {
                             isToWell = true;
             				return new LoadWasteAction(currentTask);
                         } else {
-                            System.out.print("7/");
+                            System.out.println("7/");
                             return moveTowardsPointsAction(view, taskToGo);
                         }
                     } else {
                         if(getCurrentCell(view) instanceof Well){
-                            System.out.print("8/");
+                            System.out.println("8/");
                             Well currentCellStation = (Well) getCurrentCell(view);
 
                             isToTask = true;
                             isToWell = false;
             				return new DisposeWasteAction();
                         } else {
-                            System.out.print("9/");
+                            System.out.println("9/");
                             return moveTowardsPointsAction(view, nearestWellGoingFromTask);
                         }
                     }
                 }
                 // tank -> task -> fuelpump
-                else if(fuelleftAfterTask >= distanceBetweenTaskAndFuelPump) {
+                else if(fuelleftAfterTask > distanceBetweenTaskAndFuelPump) {
                     if(getCurrentCell(view) instanceof Station){
-                        System.out.print("10/");
+                        System.out.println("10/");
                         Station currentCellStation = (Station) getCurrentCell(view);
                         Task currentTask = currentCellStation.getTask();
                         seenTasks.remove(taskChosenIndex);
         				return new LoadWasteAction(currentTask);
                     } else {
-                        System.out.print("12/");
+                        System.out.println("12/");
                         return moveTowardsPointsAction(view, taskToGo);
                     }
                 }
                 // tank ->fuelpump
                 else {
-                    System.out.print("13/");
+                    System.out.println("13/");
                     if(getCurrentCell(view) instanceof FuelPump){
         				return new RefuelAction();
         			} else {
@@ -275,9 +282,11 @@ public class DemoTanker extends Tanker {
                 // maxTankCapacity() < taskAmount
                 if(MAX_WASTE < taskToGo[2]){
                     // tank -> task -> fuelpump
-                    if(fuelleftAfterTask >= distanceBetweenTaskAndFuelPump){
+                    if(fuelleftAfterTask > distanceBetweenTaskAndFuelPump){
                         if(getCurrentCell(view) instanceof Station){
-                            System.out.print("14/");
+                            System.out.println("14/");
+                            lastStationX = Integer.MIN_VALUE;
+                            lastStationY = Integer.MIN_VALUE;
                             Station currentCellStation = (Station) getCurrentCell(view);
                             Task currentTask = currentCellStation.getTask();
 
@@ -285,13 +294,13 @@ public class DemoTanker extends Tanker {
         					seenTasks.get(taskChosenIndex)[2] = newTask;
             				return new LoadWasteAction(currentTask);
                         } else {
-                            System.out.print("15/");
+                            System.out.println("15/");
                             return moveTowardsPointsAction(view, taskToGo);
                         }
                     }
                     // tank -> fuelpump
                     else {
-                        System.out.print("16/");
+                        System.out.println("16/");
                         if(getCurrentCell(view) instanceof FuelPump){
         				    return new RefuelAction();
             			} else {
@@ -304,19 +313,19 @@ public class DemoTanker extends Tanker {
                     int distanceBetweenFuelPumpAndWell = Math.max(Math.abs(nearestWellGoingFromTank[0] - nearestFuelpumpGoingFromWell2[0]),Math.abs(nearestWellGoingFromTank[1] - nearestFuelpumpGoingFromWell2[1]));
                     int fuelAfterWell = getFuelLevel() - distanceBetweenTankAndWell;
                     // tank -> well -> fuelpump
-                    if(fuelAfterWell >= distanceBetweenFuelPumpAndWell) {
+                    if(fuelAfterWell > distanceBetweenFuelPumpAndWell) {
                         if(getCurrentCell(view) instanceof Well){
-                            System.out.print("17/");
+                            System.out.println("17/");
                             Well currentCellStation = (Well) getCurrentCell(view);
             				return new DisposeWasteAction();
                         } else {
-                            System.out.print("18/");
+                            System.out.println("18/");
                             return moveTowardsPointsAction(view, nearestWellGoingFromTank);
                         }
                     }
                     // tank -> fuelpump
                     else {
-                        System.out.print("19/");
+                        System.out.println("19/");
                         if(getCurrentCell(view) instanceof FuelPump){
                             if(getFuelLevel() != 100){
                                 return new RefuelAction();
@@ -332,8 +341,18 @@ public class DemoTanker extends Tanker {
         }
         // No task left
         else {
-            System.out.print("20/");
-            return walkingAround(view, timestep);
+            int[] root = {0,0};
+            // Find nearest fuelPump going from current tank position
+            int[] nearestFuelpumpGoingFromCurrent = seenFuelpumps.get(getClosestIndexBetween(seenFuelpumps, new int[]{tankPosX, tankPosY}));
+            int distanceBetweenRootAndCurrent = Math.max(Math.abs(root[0] - tankPosX),Math.abs(root[1] - tankPosY));
+
+            if(getFuelLevel() > distanceBetweenRootAndCurrent){
+                System.out.println("20/");
+                return walkingAround(view, timestep);
+            } else {
+                System.out.println("21/");
+                return moveTowardsPointsAction(view, nearestFuelpumpGoingFromCurrent);
+            }
         }
 
     }
