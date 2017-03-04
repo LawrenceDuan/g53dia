@@ -29,7 +29,7 @@ public class DemoSimulator {
 	/**
 	 * Number of timesteps to execute
 	 */
-	private static int DURATION = 200;
+	private static int DURATION = 400;
 
 	public static void main(String[] args) {
         // Create an environment
