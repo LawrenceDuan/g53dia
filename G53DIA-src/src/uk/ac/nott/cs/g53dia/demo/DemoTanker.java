@@ -184,10 +184,11 @@ public class DemoTanker extends Tanker {
                 if(fuelleftAfterTask > distanceBetweenTaskAndFuelPump){
                     // System.out.print("("+fuelleftAfterTask+","+distanceBetweenTaskAndFuelPump+")");
                     if(getCurrentCell(view) instanceof Station){
-                        if(lastStationX == tankPosX && lastStationY == tankPosY){
-                            System.out.println("22/");
-                            return moveTowardsPointsAction(view, taskToGo);
-                        } else if (tankPosX != taskToGo[0] || tankPosY != taskToGo[1]) {
+                        // if(lastStationX == tankPosX && lastStationY == tankPosY){
+                        //     System.out.println("22/");
+                        //     return moveTowardsPointsAction(view, taskToGo);
+                        // } else
+                        if (tankPosX != taskToGo[0] || tankPosY != taskToGo[1]) {
                             System.out.println("23/");
                             return moveTowardsPointsAction(view, taskToGo);
                         } else {
@@ -208,11 +209,13 @@ public class DemoTanker extends Tanker {
                 else {
                     System.out.println("4/");
                     if(getCurrentCell(view) instanceof FuelPump){
-        				return new RefuelAction();
-        			} else if(getFuelLevel() == 100) {
-                        System.out.println("20/");
-                        return walkingAround(view, timestep);
-                    } else {
+                        if(getFuelLevel() == 100) {
+                            System.out.println("20/");
+                            return walkingAround(view, timestep);
+                        } else {
+                            return new RefuelAction();
+                        }
+        			} else {
         				return moveTowardsPointsAction(view, nearestFuelpumpGoingFromCurrent);
         			}
                 }
