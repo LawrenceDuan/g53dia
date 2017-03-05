@@ -94,7 +94,7 @@ public class DemoTanker extends Tanker {
                 int b = i+tankPosX-25;
                 int c = -j+tankPosY+25;
 
-                // if (Math.max(Math.abs(focusedPos[0]), Math.abs(focusedPos[1])) <= 50){
+                if (Math.max(Math.abs(focusedPos[0]), Math.abs(focusedPos[1])) <= 50){
                     if (view[i][j] instanceof Station) {
     					if (isInList(seenStations, focusedPos) == -1){
     						seenStations.add(focusedPos);
@@ -118,7 +118,7 @@ public class DemoTanker extends Tanker {
                     } else {
     					continue;
     				}
-                // }
+                }
             }
         }
     }
