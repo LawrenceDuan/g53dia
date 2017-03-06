@@ -3,18 +3,7 @@ import uk.ac.nott.cs.g53dia.library.*;
 import java.util.*;
 import java.util.Arrays;
 import java.nio.file.Files;
-/**
- * A simple example Tanker
- *
- * @author Julian Zappala
- */
-/*
- *
- * Copyright (c) 2011 Julian Zappala
- *
- * See the file "license.terms" for information on usage and redistribution
- * of this file, and for a DISCLAIMER OF ALL WARRANTIES.
- */
+
 public class DemoTanker extends Tanker {
 
     private ArrayList<int[]> initialWlakingAroundPoints = new ArrayList<int[]>();
@@ -37,69 +26,52 @@ public class DemoTanker extends Tanker {
     private boolean isToWell = false;
 
     public DemoTanker() {
+        // Manually set four points which are followd by tanker in two cases:
+        //  1. At the start of agent. In order to detect and memory a limit range of environment around the root point
+        //  2. When there is no detected task known by tanker, looking around by following this path
         initialWlakingAroundPoints.add(new int[]{0,0});
         initialWlakingAroundPoints.add(new int[]{25,25});
         initialWlakingAroundPoints.add(new int[]{25,-25});
         initialWlakingAroundPoints.add(new int[]{0,0});
-        // initialWlakingAroundPoints.add(new int[]{-25,-25});
-        // initialWlakingAroundPoints.add(new int[]{-25,25});
-        // initialWlakingAroundPoints.add(new int[]{0,0});
 
+        // Add the FuelPump at the root into tanker's memory manually
         seenFuelpumps.add(new int[]{0,0});
     }
 
-    /*
-     * The following is a very simple demonstration of how to write a tanker. The
-     * code below is very stupid and pretty much randomly picks actions to perform.
+    /**
+     * SenseAndAct is the main method that can be treated as the brain of the intelligent agent
+     * @param   view
+     * @param   timestep
+     * @return  Action that agent will do
      */
     public Action senseAndAct(Cell[][] view, long timestep) {
         initialSeenThings(view);
-        // System.out.println("///");
-        // System.out.println("("+seenStations.size()+","+seenWells.size()+","+seenTasks.size()+seenFuelpumps.size()+")");
 
         if(isInitialWlakingAround){
             return initialWalkingAround(view, timestep);
         }else{
-            System.out.print("--------"+timestep+"---------");
+            System.out.print("----"+timestep+"---- ");
             return workingProcedure(view, timestep);
         }
-    	// If fuel tank is low and not at the fuel pump then move towards the fuel pump
-        // else if (seenTasks) {
-        //     // System.out.println("\\\\"+tankPosX);
-        //     // System.out.println("\\\\"+tankPosY);
-		// 	if(getCurrentCell(view) instanceof FuelPump){
-        //         System.out.println("11");
-		// 		return new RefuelAction();
-		// 	} else {
-		// 		return new MoveTowardsAction(FUEL_PUMP_LOCATION);
-		// 	}
-        // } else {
-        //     // otherwise, move randomly
-        //     int a = (int)(Math.random() * 8);
-        //     // System.out.println(tankPosX);
-        //     // System.out.println(tankPosY);
-        //     // tankMovement(4);
-        //     return new MoveAction(a);
-        // }
     }
 
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    ////////////////////////////////////////////// Working Procedures //////////////////////////////////////////
+    /**
+     * Detecting and storing any stations, wells, fuelpumps and tasks
+     * @param view
+     */
     private void initialSeenThings(Cell[][] view){
         for(int i = 0;i < view.length;i++){
             for(int j = 0;j < view[i].length;j++){
-                // Get focused position's coordinate
+                // Look at each cell of view start from view[0][0]
                 int[] focusedPos = new int[]{i+tankPosX-25, -j+tankPosY+25};
                 int b = i+tankPosX-25;
                 int c = -j+tankPosY+25;
 
+                // Storing any detected stations, wells, fuelpumps and tasks
                 if (Math.max(Math.abs(focusedPos[0]), Math.abs(focusedPos[1])) <= 99){
                     if (view[i][j] instanceof Station) {
     					if (isInList(seenStations, focusedPos) == -1){
     						seenStations.add(focusedPos);
-                            // System.out.println("(" + i + "," + j+")"   +   "(" + tankPosX + "," + tankPosY+")"   +   "(" + focusedPos[0] + "," + focusedPos[1]+")");
-                            // System.out.println("-------"+b+"/"+c);
     					}
 
     					Station focusedSta = (Station) view[i][j];
@@ -111,8 +83,6 @@ public class DemoTanker extends Tanker {
     					}
     				} else if (view[i][j] instanceof Well && isInList(seenWells, focusedPos) == -1) {
     					seenWells.add(focusedPos);
-                        // System.out.println("(" + i + "," + j+")"   +   "(" + tankPosX + "," + tankPosY+")"   +   "(" + focusedPos[0] + "," + focusedPos[1]+")");
-                        // System.out.println("-------"+tankPosX+'.'+tankPosY+"||||"+b+"/"+c);
     				} else if (view[i][j] instanceof FuelPump && isInList(seenFuelpumps, focusedPos) == -1) {
                         seenFuelpumps.add(focusedPos);
                     } else {
@@ -123,7 +93,14 @@ public class DemoTanker extends Tanker {
         }
     }
 
+    /**
+     * Looking around to detect environment around
+     * @param   view
+     * @param   timestep
+     * @return  Action that the agent will do
+     */
     private Action initialWalkingAround(Cell[][] view, long timestep){
+        System.out.println("("+tankPosX+","+tankPosY+")");
         if(initialWalkingAroundMonitor >= initialWlakingAroundPoints.size()){
             isInitialWlakingAround = false;
             return senseAndAct(view, timestep);
@@ -133,7 +110,11 @@ public class DemoTanker extends Tanker {
         if(targetPos[0] == tankPosX && targetPos[1] == tankPosY){
             initialWalkingAroundMonitor++;
             if(getCurrentCell(view) instanceof FuelPump){
-                return new RefuelAction();
+                if(getFuelLevel() == 100) {
+                    return senseAndAct(view, timestep);
+                } else {
+                    return new RefuelAction();
+                }
             } else {
                 return senseAndAct(view, timestep);
             }
@@ -142,11 +123,19 @@ public class DemoTanker extends Tanker {
         }
     }
 
+    /**
+     * Method inplements thinkging procedure of agent
+     * @param  Cell[][] view          [description]
+     * @param  long     timestep      [description]
+     * @return          [description]
+     */
     private Action workingProcedure(Cell[][] view, long timestep){
         // taskAmount >= 1
         if(seenTasks.size() >= 1){
             // Find nearest task going from current tank position
             int taskChosenIndex = getClosestIndexBetween(seenTasks, new int[]{tankPosX, tankPosY});
+
+            // -1 means there is no task that can be reached from current tanker position even with full fulelevel
             if(taskChosenIndex == -1){
                 int[] root = {0,0};
                 // Find nearest fuelPump going from current tank position
@@ -157,11 +146,6 @@ public class DemoTanker extends Tanker {
                     System.out.println("30/");
                     return walkingAround(view, timestep);
                 } else {
-                    // System.out.print("FuelPumpToGo:"+"("+nearestFuelpumpGoingFromCurrent[0]+","+nearestFuelpumpGoingFromCurrent[1]+")$"+"CurrentPosition:"+"("+tankPosX+","+tankPosY+")$");
-                    // System.out.print("21/");
-                    // System.out.println("("+getFuelLevel()+","+distanceBetweenRootAndCurrent+")");
-                    // return moveTowardsPointsAction(view, nearestFuelpumpGoingFromCurrent);
-
                     if(getCurrentCell(view) instanceof FuelPump){
                         if(getFuelLevel() == 100) {
                             System.out.println("31/");
@@ -176,13 +160,11 @@ public class DemoTanker extends Tanker {
         			}
                 }
             }
-            System.out.print(seenTasks.size()+"//////////");
-            System.out.println(taskChosenIndex+"//////////");
+
             int[] taskToGo = seenTasks.get(taskChosenIndex);
             int taskToGoX = taskToGo[0];
             int taskToGoY = taskToGo[1];
             System.out.print("TaskToGo:"+"("+taskToGoX+","+taskToGoY+")$"+"CurrentPosition:"+"("+tankPosX+","+tankPosY+")$");
-            // int taskAmount = taskToGo[2];
 
             // Find nearest fuelPump going from taskToGo
             int[] nearestFuelpumpGoingFromTask = seenFuelpumps.get(getClosestIndexBetween(seenFuelpumps, taskToGo));
@@ -205,20 +187,13 @@ public class DemoTanker extends Tanker {
             int distanceBetweenTankAndFuelPump = Math.max(Math.abs(nearestFuelpumpGoingFromCurrent[0] - tankPosX),Math.abs(nearestFuelpumpGoingFromCurrent[1] - tankPosY));
             int distanceBetweenTankAndTask = Math.max(Math.abs(taskToGo[0] - tankPosX),Math.abs(taskToGo[1] - tankPosY));
             int distanceBetweenTaskAndFuelPump = Math.max(Math.abs(taskToGo[0] - nearestFuelpumpGoingFromTask[0]),Math.abs(taskToGo[1] - nearestFuelpumpGoingFromTask[1]));
-
             int fuelleftAfterTask = getFuelLevel() - distanceBetweenTankAndTask;
+
             // tankCapacity() > taskAmount
             if(getWasteCapacity() > taskToGo[2]){
-
-
                 // tank -> task -> fuelpump
                 if(fuelleftAfterTask > distanceBetweenTaskAndFuelPump){
-                    // System.out.print("("+fuelleftAfterTask+","+distanceBetweenTaskAndFuelPump+")");
                     if(getCurrentCell(view) instanceof Station){
-                        // if(lastStationX == tankPosX && lastStationY == tankPosY){
-                        //     System.out.println("22/");
-                        //     return moveTowardsPointsAction(view, taskToGo);
-                        // } else
                         if (tankPosX != taskToGo[0] || tankPosY != taskToGo[1]) {
                             System.out.println("23/");
                             return moveTowardsPointsAction(view, taskToGo);
@@ -388,7 +363,7 @@ public class DemoTanker extends Tanker {
                 }
             }
         }
-        // No task left
+        // No task left seenTasks
         else {
             int[] root = {0,0};
             // Find nearest fuelPump going from current tank position
@@ -399,11 +374,6 @@ public class DemoTanker extends Tanker {
                 System.out.println("20/");
                 return walkingAround(view, timestep);
             } else {
-                // System.out.print("FuelPumpToGo:"+"("+nearestFuelpumpGoingFromCurrent[0]+","+nearestFuelpumpGoingFromCurrent[1]+")$"+"CurrentPosition:"+"("+tankPosX+","+tankPosY+")$");
-                // System.out.print("21/");
-                // System.out.println("("+getFuelLevel()+","+distanceBetweenRootAndCurrent+")");
-                // return moveTowardsPointsAction(view, nearestFuelpumpGoingFromCurrent);
-
                 if(getCurrentCell(view) instanceof FuelPump){
                     if(getFuelLevel() == 100) {
                         System.out.println("20/");
@@ -421,15 +391,24 @@ public class DemoTanker extends Tanker {
 
     }
 
+    /**
+     * Method agent will call when there is no task left in seenTasks or there is no reachable task in seenTasks from current position
+     * @param   view
+     * @param   timestep
+     * @return  Action that agent will do
+     */
     private Action walkingAround(Cell[][] view, long timestep){
         isInitialWlakingAround = true;
         initialWalkingAroundMonitor = 0;
         return initialWalkingAround(view, timestep);
     }
 
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    ////////////////////////////////////////////// Agent Actions ///////////////////////////////////////////////
+    /**
+     * Moveing to specified Point
+     * @param   view
+     * @param   targetPos
+     * @return  Action that agent will do next
+     */
     private Action moveTowardsPointsAction(Cell[][] view, int[] targetPos){
         int horizontalDifference = targetPos[0] - tankPosX;
         int verticalDifference = targetPos[1] - tankPosY;
@@ -485,9 +464,12 @@ public class DemoTanker extends Tanker {
         return new MoveAction(directionToGo);
     }
 
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    ////////////////////////////////////////////// Helper Methods //////////////////////////////////////////////
+    /**
+     * Method used to check whether a int[] is in the given arraylist or not
+     * @param   seemList
+     * @param   focused
+     * @return  Action that agent will do next
+     */
     private int isInList(ArrayList<int[]> seenList, int[] focused){
         for (int i = 0; i < seenList.size(); i++){
             if (Arrays.equals(seenList.get(i), focused)){
@@ -497,6 +479,10 @@ public class DemoTanker extends Tanker {
         return -1;
     }
 
+     /**
+      * Referesh the position of the tanker
+      * @param dir
+      */
     private void tankMovement(int dir){
         switch (dir){
             case 0:
@@ -530,6 +516,12 @@ public class DemoTanker extends Tanker {
         }
     }
 
+    /**
+     * Find a closest int[]'s index in the ArrayList from a given int[] point
+     * @param   indicesList
+     * @param   point
+     * @return  the index of ArrayList
+     */
     private int getClosestIndexBetween(ArrayList<int[]> indicesList, int[] point){
         int furthestGoableDistance = 100;
         int closestIndex = -1;
@@ -539,7 +531,6 @@ public class DemoTanker extends Tanker {
             if(distanceBetween <= furthestGoableDistance){
                 furthestGoableDistance = distanceBetween;
                 closestIndex = i;
-                System.out.println("kfnjaknfknfjda"+closestIndex);
             }
         }
         return closestIndex;
