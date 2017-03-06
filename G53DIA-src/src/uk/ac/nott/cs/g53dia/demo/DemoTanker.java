@@ -41,9 +41,9 @@ public class DemoTanker extends Tanker {
         initialWlakingAroundPoints.add(new int[]{25,25});
         initialWlakingAroundPoints.add(new int[]{25,-25});
         initialWlakingAroundPoints.add(new int[]{0,0});
-        initialWlakingAroundPoints.add(new int[]{-25,-25});
-        initialWlakingAroundPoints.add(new int[]{-25,25});
-        initialWlakingAroundPoints.add(new int[]{0,0});
+        // initialWlakingAroundPoints.add(new int[]{-25,-25});
+        // initialWlakingAroundPoints.add(new int[]{-25,25});
+        // initialWlakingAroundPoints.add(new int[]{0,0});
 
         seenFuelpumps.add(new int[]{0,0});
     }
@@ -147,6 +147,8 @@ public class DemoTanker extends Tanker {
         if(seenTasks.size() >= 1){
             // Find nearest task going from current tank position
             int taskChosenIndex = getClosestIndexBetween(seenTasks, new int[]{tankPosX, tankPosY});
+            System.out.print(seenTasks.size()+"//////////");
+            System.out.println(taskChosenIndex+"//////////");
             int[] taskToGo = seenTasks.get(taskChosenIndex);
             int taskToGoX = taskToGo[0];
             int taskToGoY = taskToGo[1];
@@ -231,14 +233,19 @@ public class DemoTanker extends Tanker {
                 if(fuelAfterTaskWell > distanceBetweenWellAndFuelPump){
                     if(isToTask){
                         if(getCurrentCell(view) instanceof Station){
-                            System.out.println("6/");
-                            Station currentCellStation = (Station) getCurrentCell(view);
-                            Task currentTask = currentCellStation.getTask();
-                            seenTasks.remove(taskChosenIndex);
+                            if (tankPosX != taskToGo[0] || tankPosY != taskToGo[1]) {
+                                System.out.println("26/");
+                                return moveTowardsPointsAction(view, taskToGo);
+                            } else {
+                                System.out.println("6/");
+                                Station currentCellStation = (Station) getCurrentCell(view);
+                                Task currentTask = currentCellStation.getTask();
+                                seenTasks.remove(taskChosenIndex);
 
-                            isToTask = false;
-                            isToWell = true;
-            				return new LoadWasteAction(currentTask);
+                                isToTask = false;
+                                isToWell = true;
+                				return new LoadWasteAction(currentTask);
+                            }
                         } else {
                             System.out.println("7/");
                             return moveTowardsPointsAction(view, taskToGo);
@@ -500,7 +507,7 @@ public class DemoTanker extends Tanker {
         for(int i = 0;i < indicesList.size();i++){
             int[] positionGoable = indicesList.get(i);
             int distanceBetween = Math.max(Math.abs(positionGoable[0] - point[0]),Math.abs(positionGoable[1] - point[1]));
-            if(distanceBetween < furthestGoableDistance){
+            if(distanceBetween <= furthestGoableDistance){
                 furthestGoableDistance = distanceBetween;
                 closestIndex = i;
             }
