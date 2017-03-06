@@ -34,7 +34,7 @@ public class DemoSimulator {
 
 	public static void main(String[] args) {
         // Create an environment
-        Environment env = new Environment(Tanker.MAX_FUEL/2, new Random(8));
+        Environment env = new Environment(Tanker.MAX_FUEL/2, new Random(2));
         // Create our tanker
         Tanker t = new DemoTanker();
         // Create a GUI window to show our tanker

@@ -147,6 +147,35 @@ public class DemoTanker extends Tanker {
         if(seenTasks.size() >= 1){
             // Find nearest task going from current tank position
             int taskChosenIndex = getClosestIndexBetween(seenTasks, new int[]{tankPosX, tankPosY});
+            if(taskChosenIndex == -1){
+                int[] root = {0,0};
+                // Find nearest fuelPump going from current tank position
+                int[] nearestFuelpumpGoingFromCurrent = seenFuelpumps.get(getClosestIndexBetween(seenFuelpumps, new int[]{tankPosX, tankPosY}));
+                int distanceBetweenRootAndCurrent = Math.max(Math.abs(root[0] - tankPosX),Math.abs(root[1] - tankPosY));
+
+                if(getFuelLevel() > distanceBetweenRootAndCurrent){
+                    System.out.println("30/");
+                    return walkingAround(view, timestep);
+                } else {
+                    // System.out.print("FuelPumpToGo:"+"("+nearestFuelpumpGoingFromCurrent[0]+","+nearestFuelpumpGoingFromCurrent[1]+")$"+"CurrentPosition:"+"("+tankPosX+","+tankPosY+")$");
+                    // System.out.print("21/");
+                    // System.out.println("("+getFuelLevel()+","+distanceBetweenRootAndCurrent+")");
+                    // return moveTowardsPointsAction(view, nearestFuelpumpGoingFromCurrent);
+
+                    if(getCurrentCell(view) instanceof FuelPump){
+                        if(getFuelLevel() == 100) {
+                            System.out.println("31/");
+                            return walkingAround(view, timestep);
+                        } else {
+                            System.out.println("32/");
+                            return new RefuelAction();
+                        }
+        			} else {
+                        System.out.println("33/");
+        				return moveTowardsPointsAction(view, nearestFuelpumpGoingFromCurrent);
+        			}
+                }
+            }
             System.out.print(seenTasks.size()+"//////////");
             System.out.println(taskChosenIndex+"//////////");
             int[] taskToGo = seenTasks.get(taskChosenIndex);
@@ -510,6 +539,7 @@ public class DemoTanker extends Tanker {
             if(distanceBetween <= furthestGoableDistance){
                 furthestGoableDistance = distanceBetween;
                 closestIndex = i;
+                System.out.println("kfnjaknfknfjda"+closestIndex);
             }
         }
         return closestIndex;
