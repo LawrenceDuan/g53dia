@@ -270,11 +270,18 @@ public class DemoTanker extends Tanker {
                 // tank -> task -> fuelpump
                 else if(fuelleftAfterTask > distanceBetweenTaskAndFuelPump) {
                     if(getCurrentCell(view) instanceof Station){
-                        System.out.println("10>>");
-                        Station currentCellStation = (Station) getCurrentCell(view);
-                        Task currentTask = currentCellStation.getTask();
-                        seenTasks.remove(taskChosenIndex);
-        				return new LoadWasteAction(currentTask);
+                        if (tankPosX != taskToGo[0] || tankPosY != taskToGo[1]) {
+                            System.out.println("100>>");
+                            return moveTowardsPointsAction(view, taskToGo);
+                        } else {
+                            System.out.println("10>>");
+                            lastStationX = taskToGo[0];
+                            lastStationY = taskToGo[1];
+                            Station currentCellStation = (Station) getCurrentCell(view);
+                            Task currentTask = currentCellStation.getTask();
+                            seenTasks.remove(taskChosenIndex);
+            				return new LoadWasteAction(currentTask);
+                        }
                     } else {
                         System.out.println("12>>");
                         return moveTowardsPointsAction(view, taskToGo);
