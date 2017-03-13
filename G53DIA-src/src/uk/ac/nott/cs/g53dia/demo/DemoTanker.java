@@ -18,10 +18,6 @@ public class DemoTanker extends Tanker {
     private int tankPosX = 0;
     private int tankPosY = 0;
 
-    private int lastStationX = Integer.MIN_VALUE;
-    private int lastStationY = Integer.MIN_VALUE;
-
-    // tank -> task -> well -> fuelpump
     private boolean isToTask = true;
     private boolean isToWell = false;
 
@@ -40,8 +36,8 @@ public class DemoTanker extends Tanker {
 
     /**
      * SenseAndAct is the main method that can be treated as the brain of the intelligent agent
-     * @param   view
-     * @param   timestep
+     * @param   view Tanker's view
+     * @param   timestep Program's time counting
      * @return  Action that agent will do
      */
     public Action senseAndAct(Cell[][] view, long timestep) {
@@ -61,7 +57,7 @@ public class DemoTanker extends Tanker {
 
     /**
      * Detecting and storing any stations, wells, fuelpumps and tasks
-     * @param view
+     * @param view Tanker's view
      */
     private void initialSeenThings(Cell[][] view){
         for(int i = 0;i < view.length;i++){
@@ -99,8 +95,8 @@ public class DemoTanker extends Tanker {
 
     /**
      * Looking around to detect environment around
-     * @param   view
-     * @param   timestep
+     * @param   view Tanker's view
+     * @param   timestep Program's time counting
      * @return  Action that the agent will do
      */
     private Action initialWalkingAround(Cell[][] view, long timestep){
@@ -128,9 +124,9 @@ public class DemoTanker extends Tanker {
 
     /**
      * Method inplements thinkging procedure of agent
-     * @param  Cell[][] view          [description]
-     * @param  long     timestep      [description]
-     * @return          [description]
+     * @param  view          Tanker's view
+     * @param  timestep      Program's time counting
+     * @return An action to do
      */
     private Action workingProcedure(Cell[][] view, long timestep){
         // taskAmount >= 1
@@ -189,8 +185,6 @@ public class DemoTanker extends Tanker {
                         if (tankPosX != taskToGo[0] || tankPosY != taskToGo[1]) {
                             return moveTowardsPointsAction(view, taskToGo);
                         } else {
-                            lastStationX = taskToGo[0];
-                            lastStationY = taskToGo[1];
                             Station currentCellStation = (Station) getCurrentCell(view);
                             Task currentTask = currentCellStation.getTask();
                             seenTasks.remove(taskChosenIndex);
@@ -255,8 +249,6 @@ public class DemoTanker extends Tanker {
                         if (tankPosX != taskToGo[0] || tankPosY != taskToGo[1]) {
                             return moveTowardsPointsAction(view, taskToGo);
                         } else {
-                            lastStationX = taskToGo[0];
-                            lastStationY = taskToGo[1];
                             Station currentCellStation = (Station) getCurrentCell(view);
                             Task currentTask = currentCellStation.getTask();
                             seenTasks.remove(taskChosenIndex);
@@ -286,8 +278,6 @@ public class DemoTanker extends Tanker {
                     // tank -> task -> fuelpump
                     if(fuelleftAfterTask > distanceBetweenTaskAndFuelPump){
                         if(getCurrentCell(view) instanceof Station){
-                            lastStationX = Integer.MIN_VALUE;
-                            lastStationY = Integer.MIN_VALUE;
                             Station currentCellStation = (Station) getCurrentCell(view);
                             Task currentTask = currentCellStation.getTask();
 
@@ -365,8 +355,8 @@ public class DemoTanker extends Tanker {
 
     /**
      * Method agent will call when there is no task left in seenTasks or there is no reachable task in seenTasks from current position
-     * @param   view
-     * @param   timestep
+     * @param   view Tanker's view
+     * @param   timestep Program's time counting
      * @return  Action that agent will do
      */
     private Action walkingAround(Cell[][] view, long timestep){
@@ -377,8 +367,8 @@ public class DemoTanker extends Tanker {
 
     /**
      * Moveing to specified Point
-     * @param   view
-     * @param   targetPos
+     * @param   view Tanker's view
+     * @param   targetPos Position of target in type int[]
      * @return  Action that agent will do next
      */
     private Action moveTowardsPointsAction(Cell[][] view, int[] targetPos){
@@ -438,8 +428,8 @@ public class DemoTanker extends Tanker {
 
     /**
      * Method used to check whether a int[] is in the given arraylist or not
-     * @param   seemList
-     * @param   focused
+     * @param   seenList One of arraylists used to store environment's information
+     * @param   focused The point being focused
      * @return  Action that agent will do next
      */
     private int isInList(ArrayList<int[]> seenList, int[] focused){
@@ -453,7 +443,7 @@ public class DemoTanker extends Tanker {
 
      /**
       * Referesh the position of the tanker
-      * @param dir
+      * @param dir Direction to go
       */
     private void tankMovement(int dir){
         switch (dir){
@@ -490,8 +480,8 @@ public class DemoTanker extends Tanker {
 
     /**
      * Find a closest int[]'s index in the ArrayList from a given int[] point
-     * @param   indicesList
-     * @param   point
+     * @param   indicesList List of alternatives with internal type int[]
+     * @param   point Target point in type int[]
      * @return  the index of ArrayList
      */
     private int getClosestIndexBetween(ArrayList<int[]> indicesList, int[] point){
